@@ -25,3 +25,6 @@ pnpm-debug.log*
 
 api/public
 test.http
+
+# AWS CDK
+/cdk/cdk.out

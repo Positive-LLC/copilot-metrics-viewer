@@ -1,0 +1,14 @@
+{
+  "name": "cdk",
+  "version": "0.0.1",
+  "scripts": {
+    "deploy": "cdk deploy --require-approval never --all",
+    "synth": "cdk synth"
+
+  },
+  "dependencies": {
+    "aws-cdk": "2.131.0",
+    "aws-cdk-lib": "2.131.0",
+    "constructs": "10.0.0"
+  }
+}

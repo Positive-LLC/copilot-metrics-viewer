@@ -1,10 +1,12 @@
 # Stage 1: Build the Vue.js application
 FROM node:14 AS build-stage
 
-USER node
+USER root
 WORKDIR /app
 
 COPY --chown=1000:1000 package*.json ./
+RUN chown -R node:node /app
+USER node
 RUN npm install
 COPY --chown=1000:1000 . .
 # this will tokenize the app
