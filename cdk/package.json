@@ -2,13 +2,16 @@
   "name": "cdk",
   "version": "0.0.1",
   "scripts": {
-    "deploy": "cdk deploy --require-approval never --all",
-    "synth": "cdk synth"
+    "deploy": "cdk deploy --require-approval never --all"
 
   },
   "dependencies": {
-    "aws-cdk": "2.131.0",
-    "aws-cdk-lib": "2.131.0",
-    "constructs": "10.0.0"
+    "aws-cdk": "2.173.4",
+    "aws-cdk-lib": "2.173.4",
+    "constructs": "10.0.0",
+    "@aws-cdk/aws-apprunner-alpha": "^2.173.4-alpha.0"
+  },
+  "devDependencies": {
+    "@types/node": "20.12.7"
   }
 }

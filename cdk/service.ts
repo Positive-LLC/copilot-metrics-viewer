@@ -1,18 +1,17 @@
 import * as cdk from 'aws-cdk-lib';
-// import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as ecr from 'aws-cdk-lib/aws-ecr';
+import * as apprunner from '@aws-cdk/aws-apprunner-alpha';
 import { TagStatus } from 'aws-cdk-lib/aws-ecr';
 import { Construct } from 'constructs';
 
-export interface LambdaServiceProps extends cdk.StackProps {
-  containerImagePath: string;  // Local path to your Dockerfile
+export interface ServiceProps extends cdk.StackProps {
   serviceName: string;
 }
 
-export class LambdaServiceStack extends cdk.Stack {
-  public readonly functionUrl: string;
+export class ServiceStack extends cdk.Stack {
+  public readonly serviceUrl: string;
 
-  constructor(scope: Construct, id: string, props: LambdaServiceProps) {
+  constructor(scope: Construct, id: string, props: ServiceProps) {
     super(scope, id, props);
 
     // Create ECR repository
@@ -30,41 +29,38 @@ export class LambdaServiceStack extends cdk.Stack {
         ],
     });
 
-    /*
-    // Create Lambda function from container image
-    const lambdaFunction = new lambda.DockerImageFunction(this, `${props.serviceName}-function`, {
-      functionName: `${props.serviceName}-function`,
-      code: lambda.DockerImageCode.fromImageAsset(props.containerImagePath),
-      memorySize: 1024,
-      timeout: cdk.Duration.seconds(30),
-      architecture: lambda.Architecture.ARM_64,
-      environment: {
-        VUE_APP_SCOPE: "organization",
-        VUE_APP_GITHUB_API: "/api/github",
-        VUE_APP_GITHUB_ORG: "Positive-LLC",
-        VUE_APP_GITHUB_TOKEN: process.env.VUE_APP_GITHUB_TOKEN,
-        SESSION_SECRET: process.env.SESSION_SECRET,
-      },
+    // Create App Runner service
+    const appRunnerService = new apprunner.Service(this, `${props.serviceName}-service`, {
+      source: apprunner.Source.fromEcr({
+        repository,
+        imageConfiguration: {
+          port: 3000,
+          environmentVariables: {
+            PORT: "3000",
+            VUE_APP_SCOPE: "organization",
+            VUE_APP_GITHUB_API: "/api/github",
+            VUE_APP_GITHUB_ORG: "Positive-LLC",
+            VUE_APP_GITHUB_TOKEN: process.env.VUE_APP_GITHUB_TOKEN!,
+            SESSION_SECRET: process.env.SESSION_SECRET!,
+          },
+        },
+        tagOrDigest: 'latest',
+      }),
+      autoScalingConfiguration: new apprunner.AutoScalingConfiguration(this, 'AutoScalingConfiguration', {
+        autoScalingConfigurationName: `${props.serviceName}-config`,
+        maxConcurrency: 100,
+        maxSize: 2,
+        minSize: 1,
+      }),
     });
 
-    // Add Function URL
-    const functionUrl = lambdaFunction.addFunctionUrl({
-      authType: lambda.FunctionUrlAuthType.NONE, // Public access
-      cors: {
-        allowedOrigins: ['*'], // Adjust based on your needs
-        allowedMethods: [lambda.HttpMethod.ALL],
-        allowedHeaders: ['*'],
-      },
-    });
-
-    // Output the Function URL
-    new cdk.CfnOutput(this, 'LambdaFunctionUrl', {
-      value: functionUrl.url,
-      description: 'URL for the Lambda function',
+    // Output the Service URL
+    new cdk.CfnOutput(this, 'AppRunnerServiceUrl', {
+      value: appRunnerService.serviceUrl,
+      description: 'URL for the App Runner service',
       exportName: `${props.serviceName}-url`,
     });
 
-    this.functionUrl = functionUrl.url;
-     */
+    this.serviceUrl = appRunnerService.serviceUrl;
   }
 }
