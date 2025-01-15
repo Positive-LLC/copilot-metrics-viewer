@@ -26,5 +26,14 @@ pnpm-debug.log*
 api/public
 test.http
 
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+/test-results/
+/test-results-docker/
+test-results-docker-ent/
+test-results-docker-org/
+
 # AWS CDK
 /cdk/cdk.out
